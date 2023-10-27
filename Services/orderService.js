@@ -7,6 +7,7 @@ const ApiError = require("../utils/apiError");
 const factory = require("./handlerFactory");
 const Order = require("../Models/OrderModel");
 const Product = require("../Models/ProductModel");
+const User = require('../Models/userModel')
 const Cart = require("../Models/cartModel");
 
 // @desc    Create cash order
@@ -137,13 +138,47 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
     success_url: `${req.protocol}://${req.get("host")}/orders`,
     cancel_url: `${req.protocol}://${req.get("host")}/carts`,
     customer_email: req.user.email,
-    client_reference_id:req.params.cartId,
+    client_reference_id:req.params.cartId.toString(),
     metadata: req.body.shippingAddress,
   });
   // 4 Send session to response
   res.status(200).json({ status: "Success", session });
 });
 
+// create cart order
+const createCartOrder = async(session)=>{
+    const cartId = session.client_reference_id ;
+    const shippingAddress = session.metadata
+    const cartPrice = session.amount_total / 100 ;
+
+    const cart = await Cart.findById(cartId)
+    const user =  await User.findOne({email : session.customer_email})
+    // 3 create order (cash)
+  const order = await Order.create({
+    user: user._id,
+    cartItems: cart.items,
+    totalOrderPrice: cartPrice,
+    shippingAddress ,
+    isPaied : true , 
+    paiedAt : Date.now() ,
+    paymentMethod : 'cart'
+  });
+  // 4 update products quantity and sold
+  if (order) {
+    const bulkOptions = cart.items.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+    await Product.bulkWrite(bulkOptions, {});
+    // 5 clear cart
+    await Cart.findByIdAndDelete(cartId);
+  }
+}
+// @desc   webhook endpoint to run when wren wtrip payment success
+// @Route   POST    /checkout-complete
+// @Access  privat/auth/user
 exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
   const sig = req.headers["stripe-signature"];
 
@@ -159,6 +194,7 @@ exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   if(event.type === "checkout.session.completed"){
-    console.log('Create order here')
+    createCartOrder(event.data.object)
   }
+  res.status(200).json({recieved : true})
 });
