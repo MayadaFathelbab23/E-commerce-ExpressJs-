@@ -8,7 +8,7 @@ const morgan = require('morgan')
 const dbConnect = require('./config/dbConnection')
 // Routes
 const mountRoutes = require('./Routes')
-const {checkoutWebhook} = require('./Services/orderService')
+const checkoutWebhook = require('./Services/orderService')
 // Error Handeling
 const ApiError = require('./utils/apiError');
 const ErrorHandel = require('./middleware/ErrorMiddleware')
