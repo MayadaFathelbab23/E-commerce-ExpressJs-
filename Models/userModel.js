@@ -71,11 +71,11 @@ userSchema.pre('save' , async function(next){
 // user profile image
 const setProfileImage = (doc)=>{
     if(doc.profileImage){
-        const imgURL = `${process.env.BASE_URL}/users/${doc.profileImage}`
+        const imgURL = `${process.env.DEV_BASE_URL}/users/${doc.profileImage}`
         doc.profileImage = imgURL
     }
 }
-userSchema.post('save' , (doc)=>{
+userSchema.post('save' , (doc) =>{
     setProfileImage(doc)
 })
 userSchema.post('init' , (doc)=>{

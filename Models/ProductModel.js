@@ -89,40 +89,65 @@ ProductSchema.pre(/^find/, function (next) {
   next();
 });
 // mongoose middleware to return image path in response
+// const setImageURL = (doc) => {
+//   if (doc.imageCover) {
+//     let imageURL = ""
+//       if(process.env.NODE_ENV === 'development'){
+//         imageURL = `${process.env.DEV_BASE_URL}/products/${doc.imageCover}`;
+//       }else{
+//         imageURL = `${process.env.PRO_BASE_URL}/products/${doc.imageCover}`;
+//       }
+//     doc.imageCover = imageURL;
+//   }
+
+//   if (doc.images) {
+//     const imagesURL = [];
+//     // eslint-disable-next-line array-callback-return
+//     doc.images.forEach((img) => {
+//       let imgURL = ""
+//       if(process.env.NODE_ENV === 'development'){
+//          imgURL = `${process.env.DEV_BASE_URL}/api/products/${img}`;
+//       }else{
+//          imgURL = `${process.env.PRO_BASE_URL}/products/${img}`;
+//       }
+//       imagesURL.push(imgURL);
+      
+//     });
+//     doc.images = imagesURL;
+//   }
+// };
 const setImageURL = (doc) => {
   if (doc.imageCover) {
-    let imageURL = ""
-      if(process.env.NODE_ENV === 'development'){
-        imageURL = `${process.env.DEV_BASE_URL}/products/${doc.imageCover}`;
-      }else{
-        imageURL = `${process.env.PRO_BASE_URL}/products/${doc.imageCover}`;
-      }
-    doc.imageCover = imageURL;
+    let imageUrl = "";
+    if(process.env.NODE_ENV === 'development'){
+       imageUrl = `${process.env.DEV_BASE_URL}/product/${doc.imageCover}`;
+    }else{
+      imageUrl = `${process.env.PRO_BASE_URL}/product/${doc.imageCover}`;
+    }
+    doc.imageCover = imageUrl;
   }
-
   if (doc.images) {
-    const imagesURL = [];
-    // eslint-disable-next-line array-callback-return
-    doc.images.forEach((img) => {
-      let imgURL = ""
-      if(process.env.NODE_ENV === 'development'){
-         imgURL = `${process.env.DEV_BASE_URL}/products/${img}`;
-      }else{
-         imgURL = `${process.env.PRO_BASE_URL}/products/${img}`;
-      }
-      imagesURL.push(imgURL);
-      
+    const imagesList = [];
+    let baseUrl 
+    if(process.env.NODE_ENV === 'development'){
+      baseUrl = process.env.DEV_BASE_URL
+    }else{
+      baseUrl = process.env.PRO_BASE_URL
+    }
+    doc.images.forEach((image) => {
+      const imageUrl = `${baseUrl}/product/${image}`;
+      imagesList.push(imageUrl);
     });
-    doc.images = imagesURL;
+    doc.images = imagesList;
   }
 };
 
 // 1- getOne - getAll - update
-ProductSchema.post("init", (doc ) => {
-  setImageURL(doc );
+ProductSchema.post("save", (doc) => {
+  setImageURL(doc);
 });
 // 2- Create
-ProductSchema.post("save", (doc) => {
+ProductSchema.post("init", (doc) => {
   setImageURL(doc);
 });
 module.exports = mongoose.model("Product", ProductSchema);

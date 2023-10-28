@@ -1,8 +1,8 @@
-const multer = require('multer')
 const sharp = require('sharp');
+
 const { v4: uuidv4 } = require('uuid');
 const asyncHandelr = require("express-async-handler");
-const ApiError = require('../utils/apiError')
+
 const{ uploadMixMemortImages} = require('../middleware/uploadImageMiddleware')
 const factory = require('./handlerFactory');
 const ProductModel = require('../Models/ProductModel');
@@ -23,7 +23,7 @@ const ProductModel = require('../Models/ProductModel');
 exports.uploadProductImages = uploadMixMemortImages("imageCover" , "images")
 exports.imageProcessing = asyncHandelr(async (req , res , next)=>{
     if(req.files.imageCover){
-        const imageCoverName = `product-cover-${uuidv4()}-${Date.now()}.jpeg`;
+        const imageCoverName = `productCover-${uuidv4()}-${Date.now()}.jpeg`;
         await sharp(req.files.imageCover[0].buffer)
         .resize(2000,1333)
         .toFormat("jpeg")
