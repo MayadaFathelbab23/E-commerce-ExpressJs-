@@ -88,34 +88,8 @@ ProductSchema.pre(/^find/, function (next) {
   });
   next();
 });
-// mongoose middleware to return image path in response
-// const setImageURL = (doc) => {
-//   if (doc.imageCover) {
-//     let imageURL = ""
-//       if(process.env.NODE_ENV === 'development'){
-//         imageURL = `${process.env.DEV_BASE_URL}/products/${doc.imageCover}`;
-//       }else{
-//         imageURL = `${process.env.PRO_BASE_URL}/products/${doc.imageCover}`;
-//       }
-//     doc.imageCover = imageURL;
-//   }
 
-//   if (doc.images) {
-//     const imagesURL = [];
-//     // eslint-disable-next-line array-callback-return
-//     doc.images.forEach((img) => {
-//       let imgURL = ""
-//       if(process.env.NODE_ENV === 'development'){
-//          imgURL = `${process.env.DEV_BASE_URL}/api/products/${img}`;
-//       }else{
-//          imgURL = `${process.env.PRO_BASE_URL}/products/${img}`;
-//       }
-//       imagesURL.push(imgURL);
-      
-//     });
-//     doc.images = imagesURL;
-//   }
-// };
+
 const setImageURL = (doc) => {
   if (doc.imageCover) {
     let imageUrl = "";

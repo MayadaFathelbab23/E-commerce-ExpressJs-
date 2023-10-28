@@ -18,7 +18,12 @@ const brandSchema = new mongoose.Schema({
 // mongoose middleware to return image path in response
 const setImageURL = (doc)=>{
     if(doc.image){
-        const imageURL = `${process.env.DEV_BASE_URL}/Brand/${doc.image}`
+        let imageURL
+        if(process.env.NODE_ENV === 'development'){
+            imageURL = `${process.env.DEV_BASE_URL}/Brand/${doc.image}`
+        }else{
+            imageURL = `${process.env.PRO_BASE_URL}/Brand/${doc.image}`
+        }
         doc.image = imageURL;
     }
 }

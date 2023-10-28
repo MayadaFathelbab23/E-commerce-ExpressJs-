@@ -17,7 +17,12 @@ const categorySchema = new mongoose.Schema({
 // mongoose middleware to return image path in response
 const setImageURL = (doc)=>{
     if(doc.image){
-        const imageURL = `${process.env.BASE_URL}/category/${doc.image}`
+        let imageURL 
+        if(process.env.NODE_ENV === 'development'){
+            imageURL = `${process.env.DEV_BASE_URL}/category/${doc.image}`
+        }else{
+            imageURL = `${process.env.PRO_BASE_URL}/category/${doc.image}`
+        }
         doc.image = imageURL;
     }
 }
