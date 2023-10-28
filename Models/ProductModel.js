@@ -89,28 +89,40 @@ ProductSchema.pre(/^find/, function (next) {
   next();
 });
 // mongoose middleware to return image path in response
-const setImageURL = (doc , req) => {
+const setImageURL = (doc) => {
   if (doc.imageCover) {
-    const imageURL = `${req.protocol}://${req.get("host")}/products/${doc.imageCover}`;
+    let imageURL = ""
+      if(process.env.NODE_ENV === 'development'){
+        imageURL = `${process.env.DEV_BASE_URL}/products/${doc.imageCover}`;
+      }else{
+        imageURL = `${process.env.PRO_BASE_URL}/products/${doc.imageCover}`;
+      }
     doc.imageCover = imageURL;
   }
+
   if (doc.images) {
     const imagesURL = [];
     // eslint-disable-next-line array-callback-return
     doc.images.forEach((img) => {
-      const imgURL = `${req.protocol}://${req.get("host")}/products/${img}`;
+      let imgURL = ""
+      if(process.env.NODE_ENV === 'development'){
+         imgURL = `${process.env.DEV_BASE_URL}/products/${img}`;
+      }else{
+         imgURL = `${process.env.PRO_BASE_URL}/products/${img}`;
+      }
       imagesURL.push(imgURL);
+      
     });
     doc.images = imagesURL;
   }
 };
 
 // 1- getOne - getAll - update
-ProductSchema.post("init", (doc , req) => {
-  setImageURL(doc , req);
+ProductSchema.post("init", (doc ) => {
+  setImageURL(doc );
 });
 // 2- Create
-ProductSchema.post("save", (doc , req) => {
-  setImageURL(doc , req);
+ProductSchema.post("save", (doc) => {
+  setImageURL(doc);
 });
 module.exports = mongoose.model("Product", ProductSchema);
