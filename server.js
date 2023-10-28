@@ -8,7 +8,7 @@ const morgan = require('morgan')
 const dbConnect = require('./config/dbConnection')
 // Routes
 const mountRoutes = require('./Routes')
-const checkoutWebhook = require('./Services/orderService')
+const {checkoutWebhook} = require('./Services/orderService')
 // Error Handeling
 const ApiError = require('./utils/apiError');
 const ErrorHandel = require('./middleware/ErrorMiddleware')
@@ -24,13 +24,15 @@ app.options('*', cors())
 
 // compress all responses
 app.use(compression())
+app.use(express.json()); // json parsing
+
 // checkout webhook
 app.post('/checkout-complete' , express.raw({type: 'application/json'}) , checkoutWebhook)
 // Middleware
 if(process.env.NODE_ENV === 'development'){ //logger
     app.use(morgan('dev'));
 }
-app.use(express.json()); // json parsing
+
 // serve static files
 app.use(express.static(path.join(__dirname , "uploads")))
 //  Mount Routes
